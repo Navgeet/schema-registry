@@ -473,6 +473,10 @@ type (
 		IsCompatible bool `json:"is_compatible"`
 	}
 
+	compatibility struct {
+		Compatibility string `json:"compatibility"`
+	}
+
 	// Schema describes a schema, look `GetSchema` for more.
 	Schema struct {
 		// Schema is the Avro schema string.
@@ -704,4 +708,27 @@ func (c *Client) IsSchemaCompatible(subject string, avroSchema string, versionID
 // IsLatestSchemaCompatible tests compatibility with the latest version of a subject's schema.
 func (c *Client) IsLatestSchemaCompatible(subject string, avroSchema string) (bool, error) {
 	return c.isSchemaCompatibleAtVersion(subject, avroSchema, SchemaLatestVersion)
+}
+
+func (c *Client) SetCompatibility(subject string, compatibleEnum string) (success bool, err error) {
+	compatibleMessage := compatibility{Compatibility: compatibleEnum}
+	send, err := json.Marshal(compatibleMessage)
+	if err != nil {
+		return
+	}
+
+	path := fmt.Sprintf("config/"+subjectPath, subject)
+	resp, err := c.do(http.MethodPut, path, contentTypeSchemaJSON, send)
+	if err != nil {
+		return
+	}
+
+	switch status := resp.StatusCode; status {
+	case 200:
+		return true, nil
+	case 422:
+		return false, fmt.Errorf("invalid compatibility. Should be one of NONE, FULL, FORWARD, BACKWARD")
+	default:
+		return false, fmt.Errorf("internal Server Error: %s", resp.Body)
+	}
 }
