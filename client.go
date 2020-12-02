@@ -714,13 +714,13 @@ func (c *Client) SetCompatibility(subject string, compatibleEnum string) (succes
 	compatibleMessage := compatibility{Compatibility: compatibleEnum}
 	send, err := json.Marshal(compatibleMessage)
 	if err != nil {
-		return
+		return false, fmt.Errorf("error constructing message: %s", err)
 	}
 
 	path := fmt.Sprintf("config/"+subjectPath, subject)
 	resp, err := c.do(http.MethodPut, path, contentTypeSchemaJSON, send)
 	if err != nil {
-		return
+		return false, fmt.Errorf("error making request: %s", err)
 	}
 
 	switch status := resp.StatusCode; status {
