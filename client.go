@@ -452,9 +452,17 @@ type (
 	schemaOnlyJSON struct {
 		Schema string `json:"schema"`
 	}
+
+	reference struct {
+		Name    string `json:"name"`
+		Subject string `json:"subject"`
+		Version int    `json:"version"`
+	}
+
 	schemaTypeJSON struct {
-		Schema     string     `json:"schema"`
-		SchemaType SchemaType `json:"schemaType"`
+		Schema     string      `json:"schema"`
+		SchemaType SchemaType  `json:"schemaType"`
+		References []reference `json:"references"`
 	}
 
 	idOnlyJSON struct {
@@ -489,10 +497,10 @@ type (
 // this schema from the schemas resource and is different from
 // the schema’s version which is associated with that name.
 func (c *Client) RegisterNewSchema(subject string, avroSchema string) (int, error) {
-	return c.RegisterNewSchemaV2(subject, avroSchema, AVRO)
+	return c.RegisterNewSchemaV2(subject, avroSchema, AVRO, []reference{})
 }
 
-func (c *Client) RegisterNewSchemaV2(subject string, schema string, schemaType SchemaType) (int, error) {
+func (c *Client) RegisterNewSchemaV2(subject string, schema string, schemaType SchemaType, references []reference) (int, error) {
 	if subject == "" {
 		return 0, errRequired("subject")
 	}
@@ -501,7 +509,7 @@ func (c *Client) RegisterNewSchemaV2(subject string, schema string, schemaType S
 		return 0, errRequired("schema")
 	}
 
-	send, err := json.Marshal(schemaTypeJSON{Schema: schema, SchemaType: schemaType})
+	send, err := json.Marshal(schemaTypeJSON{Schema: schema, SchemaType: schemaType, References: references})
 	if err != nil {
 		return 0, err
 	}
