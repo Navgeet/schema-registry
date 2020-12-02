@@ -453,7 +453,7 @@ type (
 		Schema string `json:"schema"`
 	}
 
-	reference struct {
+	Reference struct {
 		Name    string `json:"name"`
 		Subject string `json:"subject"`
 		Version int    `json:"version"`
@@ -462,7 +462,7 @@ type (
 	schemaTypeJSON struct {
 		Schema     string      `json:"schema"`
 		SchemaType SchemaType  `json:"schemaType"`
-		References []reference `json:"references"`
+		References []Reference `json:"references"`
 	}
 
 	idOnlyJSON struct {
@@ -497,10 +497,10 @@ type (
 // this schema from the schemas resource and is different from
 // the schema’s version which is associated with that name.
 func (c *Client) RegisterNewSchema(subject string, avroSchema string) (int, error) {
-	return c.RegisterNewSchemaV2(subject, avroSchema, AVRO, []reference{})
+	return c.RegisterNewSchemaV2(subject, avroSchema, AVRO, []Reference{})
 }
 
-func (c *Client) RegisterNewSchemaV2(subject string, schema string, schemaType SchemaType, references []reference) (int, error) {
+func (c *Client) RegisterNewSchemaV2(subject string, schema string, schemaType SchemaType, references []Reference) (int, error) {
 	if subject == "" {
 		return 0, errRequired("subject")
 	}
